@@ -10,46 +10,50 @@ from config import TELEGRAM_TOKEN  # Import the bot token from config.py
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def start(update: Update, context: CallbackContext):
+async def start(update: Update, context: CallbackContext):
     welcome_message = (
         "Radhe Radhe, this is billa space @Billaspace & you are plugged into Billa crunchyroll bot, "
         "an advanced bot that downloads series and episodes from crunchyroll URL with >quality "
         "e.g., 240p, 360p, 720p, 1080p, hdrip> . Just paste a streaming link of content and desired quality. "
         "Billa will download it for you."
     )
-    update.message.reply_text(to_small_caps(welcome_message))
-
-def download(update: Update, context: CallbackContext):
+    await update.message.reply_text(to_small_caps(welcome_message))
+    
+async def download(update: Update, context: CallbackContext):
     try:
-        # Get URL and quality from the user's message
         message = update.message.text.strip()
         parts = message.split(' ')
-        
+
         if len(parts) < 2:
-            update.message.reply_text(to_small_caps("Please provide both the URL and desired quality "
-                                                    "(e.g., 'https://crunchyroll.com/series/xyz 720p')."))
+            await update.message.reply_text(to_small_caps(
+                "Please provide both the URL and desired quality (e.g., 'https://crunchyroll.com/series/xyz 720p')."
+            ))
             return
-        
+
         url = parts[0]
         selected_quality = parts[1]
 
-        # Validate the URL
         if not validate_crunchyroll_url(url):
-            update.message.reply_text(to_small_caps("Invalid URL! Please provide a valid Crunchyroll series link."))
+            await update.message.reply_text(to_small_caps("Invalid URL! Please provide a valid Crunchyroll series link."))
             return
 
-        # Validate the quality
         valid_qualities = ["240p", "360p", "480p", "720p", "1080p", "hdrip"]
         if selected_quality not in valid_qualities:
-            update.message.reply_text(to_small_caps("Invalid quality! Please provide a valid quality (e.g., 240p, 720p, 1080p, hdrip)."))
+            await update.message.reply_text(to_small_caps(
+                "Invalid quality! Please provide a valid quality (e.g., 240p, 720p, 1080p, hdrip)."
+            ))
             return
 
-        # Start the download process with the selected quality
+        # Call the sync download function (OK to call from async function)
         download_series(url, selected_quality)
-        update.message.reply_text(to_small_caps(f"Download started for: {url} in {selected_quality} quality."))
+
+        await update.message.reply_text(to_small_caps(f"Download started for: {url} in {selected_quality} quality."))
+
     except Exception as e:
         logger.error(f"Error downloading: {e}")
-        update.message.reply_text(to_small_caps(f"An error occurred while processing your request: {str(e)}"))
+        await update.message.reply_text(to_small_caps(
+            f"An error occurred while processing your request: {str(e)}"
+        ))
 
 def main():
     application = Application.builder().token(TELEGRAM_TOKEN).build()
