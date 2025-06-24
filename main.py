@@ -1,6 +1,7 @@
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+
 from bot.downloader import download_series
 from bot.utils import to_small_caps, validate_crunchyroll_url
 from config import TELEGRAM_TOKEN  # Import the bot token from config.py
@@ -51,17 +52,17 @@ def download(update: Update, context: CallbackContext):
         update.message.reply_text(to_small_caps(f"An error occurred while processing your request: {str(e)}"))
 
 def main():
-    # Importing the TELEGRAM_TOKEN from config.py
-    updater = Updater(TELEGRAM_TOKEN)
-    dp = updater.dispatcher
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("download", download))
-    dp.add_handler(CommandHandler("download_series", download))
-    dp.add_handler(MessageHandler(filters.text & ~filters.command, download))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("download", download))
+    application.add_handler(CommandHandler("download_series", download))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, download))
 
-    updater.start_polling()
-    updater.idle()
+    application.run_polling()
+
+if __name__ == '__main__':
+    main()
 
 if __name__ == "__main__":
     print("Bot started")
