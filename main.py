@@ -1,6 +1,6 @@
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext
 from bot.downloader import download_series
 from bot.utils import to_small_caps, validate_crunchyroll_url
 from config import TELEGRAM_TOKEN  # Import the bot token from config.py
@@ -58,10 +58,12 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("download", download))
     dp.add_handler(CommandHandler("download_series", download))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, download))
+    dp.add_handler(MessageHandler(filters.text & ~filters.command, download))
 
     updater.start_polling()
     updater.idle()
 
 if __name__ == "__main__":
+    print("Bot started")
+
     main()
