@@ -52,7 +52,7 @@ def download(update: Update, context: CallbackContext):
 
 def main():
     # Importing the TELEGRAM_TOKEN from config.py
-    updater = Updater(TELEGRAM_TOKEN, use_context=True)
+    updater = Updater(TELEGRAM_TOKEN)
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
